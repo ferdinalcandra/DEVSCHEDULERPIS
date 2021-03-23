@@ -51,26 +51,27 @@ public class DctmRestDocumentAction {
 		HttpHeaders headers = getHttpHeaders();
 		ResponseEntity<String> responseEntity = dctmRestService
 				.getDataFromDql(queryConfig.getContentTypeDql() + "'" + mimeType + "'");
+		String responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 		if (responseEntity.getStatusCodeValue() == 200) {
-			var dctmDqlResponse = objectMapper.readValue(responseEntity.getBody().toString(), DctmDqlResponse.class);
+			responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
+			var dctmDqlResponse = objectMapper.readValue(responseBody, DctmDqlResponse.class);
 			String contentType = null;
 			if (dctmDqlResponse.getDctmDqlEntriesResponse() != null) {
 				contentType = dctmDqlResponse.getDctmDqlEntriesResponse().get(0).getTitle();
-				
 				responseEntity = dctmRestService.uploadDocument(folderId, contentType, parameters, headers);
-				
+				responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 				if (responseEntity.getStatusCodeValue() == 200 || responseEntity.getStatusCodeValue() == 201) {
-					dctmUploadResponse = objectMapper.readValue(responseEntity.getBody().toString(),
+					dctmUploadResponse = objectMapper.readValue(responseBody,
 							DctmUploadResponse.class);
 					msg.add(responseEntity.getStatusCode().getReasonPhrase());
 					logger.info("upload document response : " + responseEntity.getStatusCode().getReasonPhrase());
 				} else {
-					msg.add(responseEntity.getBody().toString());
-					logger.info("upload document response : " + responseEntity.getBody().toString());
+					msg.add(responseBody);
+					logger.info("upload document response : " + responseBody);
 				}
 			}
 		} else {
-			msg.add(responseEntity.getBody().toString());
+			msg.add(responseBody);
 		}
 		return dctmUploadResponse;
 	}
@@ -80,16 +81,19 @@ public class DctmRestDocumentAction {
 			throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
 		DctmUploadVersionResponse dctmUploadVersionResponse = null;
 		ResponseEntity<String> responseEntity = unlockDocument(objectType, chronicleId, msg);
+		String responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 		if (responseEntity.getStatusCodeValue() == 200 || responseEntity.getStatusCodeValue() == 204) {
 			responseEntity = dctmRestService.checkoutDocument("/objects/" + chronicleId + "/lock");
+			responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 			if (responseEntity.getStatusCodeValue() != 200) {
-				msg.add(responseEntity.getBody().toString());
+				msg.add(responseBody);
 			} else {
 				MultiValueMap<String, Object> parameters = getUploadParameters(properties, mimeType, documentByte);
 				HttpHeaders headers = getHttpHeaders();
 				responseEntity = dctmRestService.getDataFromDql(queryConfig.getContentTypeDql() + "'" + mimeType + "'");
+				responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 				if (responseEntity.getStatusCodeValue() == 200) {
-					var dctmDqlResponse = objectMapper.readValue(responseEntity.getBody().toString(),
+					var dctmDqlResponse = objectMapper.readValue(responseBody,
 							DctmDqlResponse.class);
 					String contentType = null;
 					if (dctmDqlResponse.getDctmDqlEntriesResponse() != null) {
@@ -97,19 +101,19 @@ public class DctmRestDocumentAction {
 						
 						responseEntity = dctmRestService.uploadVersionDocument(chronicleId, contentType, parameters,
 								headers);
-						
+						responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 						if (responseEntity.getStatusCodeValue() == 200 || responseEntity.getStatusCodeValue() == 201) {
-							dctmUploadVersionResponse = objectMapper.readValue(responseEntity.getBody().toString(),
+							dctmUploadVersionResponse = objectMapper.readValue(responseBody,
 									DctmUploadVersionResponse.class);
 							msg.add(responseEntity.getStatusCode().getReasonPhrase());
-							logger.info("upload version document response : " + responseEntity.getBody().toString());
+							logger.info("upload version document response : " + responseBody);
 						} else {
-							msg.add(responseEntity.getBody().toString());
-							logger.info("upload version document response : " + responseEntity.getBody().toString());
+							msg.add(responseBody);
+							logger.info("upload version document response : " + responseBody);
 						}
 					}
 				} else {
-					msg.add(responseEntity.getBody().toString());
+					msg.add(responseBody);
 				}
 			}
 		}
@@ -143,18 +147,20 @@ public class DctmRestDocumentAction {
 		String isDocumentCheckoutDql = queryConfig.getIsDocumentCheckoutDql().replace("objectType", objectType)
 				.replace("chronicleId", chronicleId);
 		ResponseEntity<String> responseEntity = dctmRestService.getDataFromDql(isDocumentCheckoutDql);
+		String responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 		if (responseEntity.getStatusCodeValue() == 200) {
-			var dctmDqlResponse = objectMapper.readValue(responseEntity.getBody().toString(), DctmDqlResponse.class);
+			var dctmDqlResponse = objectMapper.readValue(responseBody, DctmDqlResponse.class);
 			String lockOwner = (dctmDqlResponse.getDctmDqlEntriesResponse() != null)
 					? dctmDqlResponse.getDctmDqlEntriesResponse().get(0).getTitle()
 					: "";
 			if (!lockOwner.equals("")) {
 				responseEntity = dctmRestService.cancelCheckoutDocument("/objects/" + chronicleId + "/lock");
+				responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 				if (responseEntity.getStatusCodeValue() != 204)
-					msg.add(responseEntity.getBody().toString());
+					msg.add(responseBody);
 			}
 		} else {
-			msg.add(responseEntity.getBody().toString());
+			msg.add(responseBody);
 		}
 		return responseEntity;
 	}
@@ -166,10 +172,11 @@ public class DctmRestDocumentAction {
 		ResponseEntity<String> responseEntity = dctmRestService
 				.getDataFromDql(docbaseParamDql.replace("parentId", objectId));
 		DctmDqlPropertiesResponse dctmDqlPropertiesResponse = null;
+		String responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 		if (responseEntity.getStatusCodeValue() != 200) {
-			msg.add(responseEntity.getBody().toString());
+			msg.add(responseBody);
 		} else {
-			var dctmDqlResponse = objectMapper.readValue(responseEntity.getBody().toString(), DctmDqlResponse.class);
+			var dctmDqlResponse = objectMapper.readValue(responseBody, DctmDqlResponse.class);
 			dctmDqlPropertiesResponse = dctmDqlResponse.getDctmDqlEntriesResponse().get(0).getDctmDqlContentResponse().getDctmDqlPropertiesResponse();
 		}
 		if (dctmDqlPropertiesResponse != null) {
@@ -200,7 +207,12 @@ public class DctmRestDocumentAction {
 				fullFileSystemPath = sb.toString();
 			}
 		}
-		return fullFileSystemPath.toString();
+		if(fullFileSystemPath == null) {
+			return fullFileSystemPath = null;
+		}else {
+			return fullFileSystemPath.toString();
+		}
+		
 	}
 
 }

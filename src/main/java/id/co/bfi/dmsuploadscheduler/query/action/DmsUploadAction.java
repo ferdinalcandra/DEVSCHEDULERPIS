@@ -94,13 +94,14 @@ public class DmsUploadAction {
 		String chronicleIdCheckDql = queryConfig.getChronicleIdCheckDql().replace("objectType", objectType)
 				.replace("dctmDocNumber", dctmDocNumber.toLowerCase());
 		ResponseEntity<String> responseEntity = dctmRestService.getDataFromDql(chronicleIdCheckDql);
+		String responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 		if (responseEntity.getStatusCodeValue() == 200) {
-			var dctmDqlResponse = objectMapper.readValue(responseEntity.getBody().toString(), DctmDqlResponse.class);
+			var dctmDqlResponse = objectMapper.readValue(responseBody, DctmDqlResponse.class);
 			chronicleId = (dctmDqlResponse.getDctmDqlEntriesResponse() != null)
 					? dctmDqlResponse.getDctmDqlEntriesResponse().get(0).getTitle()
 					: "";
 		} else {
-			msg.add(responseEntity.getBody().toString());
+			msg.add(responseBody);
 		}
 		return chronicleId;
 	}

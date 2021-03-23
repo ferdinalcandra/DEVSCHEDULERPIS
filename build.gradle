@@ -4,15 +4,24 @@ plugins {
 	id 'java'
 	id 'java-library'
 	id 'eclipse'
+	id 'org.sonarqube' version '3.1.1'
+	id 'jacoco'
 }
 
 group = 'id.co.bfi'
 version = '0.0.1'
-sourceCompatibility = '15'
+sourceCompatibility = '11'
 
 repositories {
 	mavenCentral()
 	jcenter()
+}
+
+sonarqube {
+    properties {
+        property 'sonar.host.url', 'http://localhost:9000'
+		property 'sonar.login', '944aa8ac84aa5b13ccaa8666f5676715a69645c2'
+    }
 }
 
 ext {

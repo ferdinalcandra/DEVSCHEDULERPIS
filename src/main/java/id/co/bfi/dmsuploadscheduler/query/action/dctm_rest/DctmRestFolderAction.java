@@ -32,8 +32,7 @@ public class DctmRestFolderAction {
 	@Autowired
 	private QueryConfig queryConfig;
 
-	@Autowired
-	private ObjectMapper objectMapper;
+	private ObjectMapper objectMapper = new ObjectMapper();
 
 	public String createFolderByPath(String path, List<String> msg)
 			throws JsonMappingException, JsonProcessingException {
@@ -46,19 +45,21 @@ public class DctmRestFolderAction {
 		String cabinetCheckDql = queryConfig.getCabinetCheckDql().replace("objectName", folders[1])
 				.replace("folderPath", checkedPath);
 		ResponseEntity<String> responseEntity = dctmRestService.getDataFromDql(cabinetCheckDql);
+		String responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 		if (responseEntity.getStatusCodeValue() == 200) {
-			var dctmDqlResponse = objectMapper.readValue(responseEntity.getBody().toString(), DctmDqlResponse.class);
+			var dctmDqlResponse = objectMapper.readValue(responseBody, DctmDqlResponse.class);
 			if (dctmDqlResponse.getDctmDqlEntriesResponse() != null)
 				existingCabinetId = dctmDqlResponse.getDctmDqlEntriesResponse().get(0).getTitle();
-			
 			if (existingCabinetId == null) {
 				responseEntity = createObject(folders[1], "dm_cabinet", "/cabinets");
+				responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 				if (responseEntity.getStatusCodeValue() == 200 || responseEntity.getStatusCodeValue() == 201) {
-					dctmCreateObjectResponse = objectMapper.readValue(responseEntity.getBody().toString(),
+					
+					dctmCreateObjectResponse = objectMapper.readValue(responseBody,
 							DctmCreateObjectResponse.class);
 					cabinetId = dctmCreateObjectResponse.getDctmCreateObjectPropertiesResponse().getObjectId();
 				} else {
-					msg.add(responseEntity.getBody().toString());
+					msg.add(responseBody.toString());
 				}
 			} else {
 				cabinetId = existingCabinetId;
@@ -69,25 +70,27 @@ public class DctmRestFolderAction {
 				String folderCheckDql = queryConfig.getFolderCheckDql().replace("objectName", folders[i])
 						.replace("folderPath", checkedPath);
 				responseEntity = dctmRestService.getDataFromDql(folderCheckDql);
+				responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 				if (responseEntity.getStatusCodeValue() != 200) {
-					msg.add(responseEntity.getBody().toString());
+					msg.add(responseBody);
 				} else {
 					String existingFolderId = null;
-					dctmDqlResponse = objectMapper.readValue(responseEntity.getBody().toString(), DctmDqlResponse.class);
+					dctmDqlResponse = objectMapper.readValue(responseBody, DctmDqlResponse.class);
 					if (dctmDqlResponse.getDctmDqlEntriesResponse() != null)
 						existingFolderId = dctmDqlResponse.getDctmDqlEntriesResponse().get(0).getTitle();
 					
 					if (existingFolderId == null) {
 						responseEntity = createObject(folders[i], "dm_folder",
 								"/folders/" + cabinetId + "/objects");
+						responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 						if (responseEntity.getStatusCodeValue() == 200
 								|| responseEntity.getStatusCodeValue() == 201) {
-							dctmCreateObjectResponse = objectMapper.readValue(responseEntity.getBody().toString(),
+							dctmCreateObjectResponse = objectMapper.readValue(responseBody,
 									DctmCreateObjectResponse.class);
 							folderId = dctmCreateObjectResponse.getDctmCreateObjectPropertiesResponse().getObjectId();
 							cabinetId = folderId;
 						} else {
-							msg.add(responseEntity.getBody().toString());
+							msg.add(responseBody);
 						}
 					} else {
 						folderId = existingFolderId;
