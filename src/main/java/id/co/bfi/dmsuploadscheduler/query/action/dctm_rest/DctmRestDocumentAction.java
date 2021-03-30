@@ -81,10 +81,9 @@ public class DctmRestDocumentAction {
 			throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
 		DctmUploadVersionResponse dctmUploadVersionResponse = null;
 		ResponseEntity<String> responseEntity = unlockDocument(objectType, chronicleId, msg);
-		String responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 		if (responseEntity.getStatusCodeValue() == 200 || responseEntity.getStatusCodeValue() == 204) {
 			responseEntity = dctmRestService.checkoutDocument("/objects/" + chronicleId + "/lock");
-			responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
+			String responseBody = (responseEntity.getBody() != null) ? responseEntity.getBody() : null;
 			if (responseEntity.getStatusCodeValue() != 200) {
 				msg.add(responseBody);
 			} else {
@@ -208,7 +207,7 @@ public class DctmRestDocumentAction {
 			}
 		}
 		if(fullFileSystemPath == null) {
-			return fullFileSystemPath = null;
+			return fullFileSystemPath;
 		}else {
 			return fullFileSystemPath.toString();
 		}
@@ -216,3 +215,4 @@ public class DctmRestDocumentAction {
 	}
 
 }
+
