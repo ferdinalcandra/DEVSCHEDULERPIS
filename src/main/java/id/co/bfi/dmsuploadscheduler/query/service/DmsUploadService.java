@@ -50,7 +50,7 @@ public class DmsUploadService {
 							var dctmUploadRequest = objectMapper.readValue(properties, DctmUploadRequest.class);
 							
 							int docTypeId = dctmUploadRequest.getDctmUploadPropertiesRequest().getDctmDocTypeId();
-							DocumentTypeEntity dmsDocType = docTypeRepository.findByDocTypeId(new Long(docTypeId));
+							DocumentTypeEntity dmsDocType = docTypeRepository.findByDocTypeId((docTypeId));
 
 							objectId = dmsUploadAction.doUpload(documentsList, i, uploadHistoryList, j, msg, objectId,
 									dctmUploadRequest, dmsDocType, properties);

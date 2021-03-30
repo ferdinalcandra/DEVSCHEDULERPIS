@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.List;
 
+import org.apache.catalina.Context;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
@@ -34,14 +35,14 @@ public class ShareFolderAction {
 			final NtlmPasswordAuthenticator auth = new NtlmPasswordAuthenticator(domain, username, password);
 			final CIFSContext context = SingletonContext.getInstance().withCredentials(auth);
 			final SmbFile sFile = new SmbFile(filePath, context);
-			final SmbFileInputStream inputStream = new SmbFileInputStream(sFile);
-
-			final byte[] buf = new byte[16 * 1024 * 1024];
-			int len;
-			while ((len = inputStream.read(buf)) > 0) {
-				baos.write(buf, 0, len);
+			try (final SmbFileInputStream inputStream = new SmbFileInputStream(sFile)){
+				final byte[] buf = new byte[16 * 1024 * 1024];
+				int len;
+				while ((len = inputStream.read(buf)) > 0) {
+					baos.write(buf, 0, len);
+				}
+				inputStream.close();
 			}
-			inputStream.close();
 		} catch (Exception e) {
 			msg.add(e.getMessage());
 		}
